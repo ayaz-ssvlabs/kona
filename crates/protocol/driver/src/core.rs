@@ -17,6 +17,8 @@ use kona_protocol::{L2BlockInfo, OpAttributesWithParent};
 use op_alloy_consensus::{OpBlock, OpTxEnvelope, OpTxType};
 use spin::RwLock;
 
+
+
 /// The Rollup Driver entrypoint.
 #[derive(Debug)]
 pub struct Driver<E, DP, P>
@@ -171,6 +173,8 @@ where
                     withdrawals: None,
                 },
             };
+
+            info!(target: "client", "[SSV] block: {:#?}", block);
 
             // Get the pipeline origin and update the tip cursor.
             let origin = self.pipeline.origin().ok_or(PipelineError::MissingOrigin.crit())?;

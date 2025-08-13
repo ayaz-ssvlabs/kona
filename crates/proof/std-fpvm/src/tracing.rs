@@ -48,7 +48,12 @@ impl Subscriber for FpvmTracingSubscriber {
 
         let mut visitor = FieldVisitor::new();
         event.record(&mut visitor);
-        io::print(&format!("[{}] {}: {}", metadata.level(), metadata.target(), visitor.message));
+        let mut out = visitor.message;
+        if !visitor.kv_pairs.is_empty() {
+            out.push_str(" ");
+            out.push_str(&visitor.kv_pairs.join(", "));
+        }
+        io::print(&format!("[{}] {}: {}", metadata.level(), metadata.target(), out));
     }
 
     fn enter(&self, _span: &Id) {}
@@ -56,23 +61,55 @@ impl Subscriber for FpvmTracingSubscriber {
     fn exit(&self, _span: &Id) {}
 }
 
-/// Custom [Visit] implementation to extract log  field values.
+/// Custom [Visit] implementation to extract log field values.
 struct FieldVisitor {
     message: String,
+    kv_pairs: alloc::vec::Vec<String>,
 }
 
 impl FieldVisitor {
     const fn new() -> Self {
-        Self { message: String::new() }
+        Self { message: String::new(), kv_pairs: alloc::vec::Vec::new() }
     }
 }
 
 impl Visit for FieldVisitor {
-    fn record_debug(&mut self, _field: &Field, value: &dyn core::fmt::Debug) {
-        self.message = format!("{:?}", value);
+    fn record_debug(&mut self, field: &Field, value: &dyn core::fmt::Debug) {
+        let rendered = format!("{:?}", value);
+        if field.name() == "message" {
+            self.message = rendered;
+        } else {
+            self.kv_pairs.push(format!("{}={}", field.name(), rendered));
+        }
     }
 
-    fn record_str(&mut self, _field: &Field, value: &str) {
-        self.message = value.to_string();
+    fn record_str(&mut self, field: &Field, value: &str) {
+        if field.name() == "message" {
+            self.message = value.to_string();
+        } else {
+            self.kv_pairs.push(format!("{}={}", field.name(), value));
+        }
     }
+
+    fn record_u64(&mut self, field: &Field, value: u64) {
+        self.kv_pairs.push(format!("{}={}", field.name(), value));
+    }
+
+    fn record_i64(&mut self, field: &Field, value: i64) {
+        self.kv_pairs.push(format!("{}={}", field.name(), value));
+    }
+
+    fn record_u128(&mut self, field: &Field, value: u128) {
+        self.kv_pairs.push(format!("{}={}", field.name(), value));
+    }
+
+    fn record_i128(&mut self, field: &Field, value: i128) {
+        self.kv_pairs.push(format!("{}={}", field.name(), value));
+    }
+
+    fn record_bool(&mut self, field: &Field, value: bool) {
+        self.kv_pairs.push(format!("{}={}", field.name(), value));
+    }
+
+    // Other numeric types are coerced by tracing into i64/u64 where possible; no extra handlers needed
 }
