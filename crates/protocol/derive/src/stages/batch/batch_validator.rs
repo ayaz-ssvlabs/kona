@@ -203,9 +203,9 @@ where
         // This is in the case where we auto generate all batches in an epoch & advance the epoch
         // but don't advance the L2 Safe Head's epoch
         let epoch = self.l1_blocks[0];
-        info!(target: "batch_validator", "Validate epoch (parent.l1_origin #{}, epoch.id() #{}, parent.l1_origin.number #{}, epoch.number #{})", parent.l1_origin, epoch.id(), parent.l1_origin.number, epoch.number);
+        info!(target: "batch_validator", "Validate epoch (parent.l1_origin {:?}, epoch.id() {:?}, parent.l1_origin.number #{}, epoch.number #{})", parent.l1_origin, epoch.id(), parent.l1_origin.number, epoch.number);
         if parent.l1_origin != epoch.id() && parent.l1_origin.number != epoch.number - 1 {
-            info!(target: "batch_validator", "L1OriginMismatch (parent.l1_origin #{}, epoch.id() #{}, parent.l1_origin.number #{}, epoch.number #{})", parent.l1_origin, epoch.id(), parent.l1_origin.number, epoch.number);
+            info!(target: "batch_validator", "L1OriginMismatch (parent.l1_origin {:?}, epoch.id() {:?}, parent.l1_origin.number #{}, epoch.number #{})", parent.l1_origin, epoch.id(), parent.l1_origin.number, epoch.number);
             return Err(PipelineErrorKind::Reset(ResetError::L1OriginMismatch(
                 parent.l1_origin.number,
                 epoch.number - 1,
