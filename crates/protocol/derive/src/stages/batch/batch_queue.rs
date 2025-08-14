@@ -211,7 +211,8 @@ where
         // Fill with empty L2 blocks of the same epoch until we meet the time of the next L1 origin,
         // to preserve that L2 time >= L1 time. If this is the first block of the epoch, always
         // generate a batch to ensure that we at least have one batch per epoch.
-        if next_timestamp < next_epoch.timestamp || first_of_epoch {
+        // if next_timestamp < next_epoch.timestamp || first_of_epoch {
+        if next_timestamp <= next_epoch.timestamp || first_of_epoch {
             info!(target: "batch_queue", "Generating empty batch for epoch: {}", epoch.number);
             return Ok(Batch::Single(SingleBatch {
                 parent_hash: parent.block_info.hash,
