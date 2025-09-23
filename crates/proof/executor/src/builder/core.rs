@@ -27,7 +27,7 @@ where
     /// The [RollupConfig].
     pub(crate) config: &'a RollupConfig,
     /// The inner trie database.
-    pub(crate) trie_db: TrieDB<P, H>,
+    pub trie_db: TrieDB<P, H>,
     /// The executor factory, used to create new [`op_revm::OpEvm`] instances for block building
     /// routines.
     pub(crate) factory: OpBlockExecutorFactory<OpAlloyReceiptBuilder, RollupConfig, Evm>,

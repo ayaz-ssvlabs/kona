@@ -30,7 +30,7 @@ where
     /// The evm factory for the executor.
     evm_factory: Evm,
     /// The executor.
-    inner: Option<StatelessL2Builder<'a, P, H, Evm>>,
+    pub inner: Option<StatelessL2Builder<'a, P, H, Evm>>,
 }
 
 impl<'a, P, H, Evm> KonaExecutor<'a, P, H, Evm>
