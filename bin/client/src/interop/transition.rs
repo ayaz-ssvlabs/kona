@@ -118,8 +118,8 @@ where
     .await?;
     let executor = KonaExecutor::new(
         rollup_config.as_ref(),
-        l2_provider.clone(),
-        l2_provider,
+        &l2_provider,
+        &l2_provider,
         evm_factory,
         None,
     );

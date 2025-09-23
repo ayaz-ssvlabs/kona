@@ -42,8 +42,8 @@ where
     /// Creates a new executor.
     pub const fn new(
         rollup_config: &'a RollupConfig,
-        trie_provider: P,
-        trie_hinter: H,
+        trie_provider: &'a  P,
+        trie_hinter: &'a H,
         evm_factory: Evm,
         inner: Option<StatelessL2Builder<'a, P, H, Evm>>,
     ) -> Self {
