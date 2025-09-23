@@ -35,8 +35,8 @@ where
 
 impl<'a, P, H, Evm> KonaExecutor<'a, P, H, Evm>
 where
-    &P: TrieDBProvider + Send + Sync + Clone,
-    &H: TrieHinter + Send + Sync + Clone,
+    P: TrieDBProvider + Send + Sync + Clone,
+    H: TrieHinter + Send + Sync + Clone,
     Evm: EvmFactory + Send + Sync + Clone,
 {
     /// Creates a new executor.
