@@ -77,26 +77,36 @@ where
     HW: HintWriterClient + Sync,
 {
     async fn get(&self, key: PreimageKey) -> PreimageOracleResult<Vec<u8>> {
-        if let Some(value) = self.cache.lock().get(&key) {
-            Ok(value.clone())
-        } else {
-            let value = self.oracle_reader.get(key).await?;
-            self.cache.lock().put(key, value.clone());
-            Ok(value)
+        // Clone the cached value in a short scope so the lock is released before any await.
+        let cached = {
+            let mut cache = self.cache.lock();
+            cache.get(&key).cloned()
+        };
+        if let Some(value) = cached {
+            return Ok(value);
         }
+
+        let value = self.oracle_reader.get(key).await?;
+        self.cache.lock().put(key, value.clone());
+        Ok(value)
     }
 
     async fn get_exact(&self, key: PreimageKey, buf: &mut [u8]) -> PreimageOracleResult<()> {
-        if let Some(value) = self.cache.lock().get(&key) {
+        // Clone the cached value in a short scope so the lock is released before any await.
+        let cached = {
+            let mut cache = self.cache.lock();
+            cache.get(&key).cloned()
+        };
+        if let Some(value) = cached {
             // SAFETY: The value never enters the cache unless the preimage length matches the
             // buffer length, due to the checks in the OracleReader.
             buf.copy_from_slice(value.as_slice());
-            Ok(())
-        } else {
-            self.oracle_reader.get_exact(key, buf).await?;
-            self.cache.lock().put(key, buf.to_vec());
-            Ok(())
+            return Ok(());
         }
+
+        self.oracle_reader.get_exact(key, buf).await?;
+        self.cache.lock().put(key, buf.to_vec());
+        Ok(())
     }
 }
 
